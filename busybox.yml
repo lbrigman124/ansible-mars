@@ -1,0 +1,19 @@
+---
+- name: test docker commands
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: pull busybox
+      docker:
+        name: mydata
+        image: busybox
+        state: present
+        volumes:
+          - /data
+
+    - name: pull busybox
+      docker:
+        name: mydata
+        image: busybox
+        state: absent
+

@@ -1,0 +1,52 @@
+---
+- name: test docker commands
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: sensor container
+      docker:
+        name:  sensor
+        image: emccode/mars-challenge-client
+        state: running
+        ports: "8888:8080"
+      tags: start
+
+    - name: controller container
+      docker:
+        name:  controller
+        image: emccode/mars-challenge-controller
+        state: running
+        ports: 
+        - "80:8080"
+        env: 
+          ADMIN_TOKEN: 1234
+      tags: start
+
+    - name: gateway container
+      docker:
+        name:  gateway
+        image: emccode/mars-challenge-gateway-go
+        state: running
+        env: 
+          GC_ENDPOINT: "emcmarslima.cloudapp.net:80"
+          SENSOR_ENDPOINT: "emcmarslima.cloudapp.net:8888"
+      tags: start
+
+    - name: dashboard container
+      docker:
+        name:  dashboard
+        image: emccode/mars-challenge-dashboard
+        state: running
+        ports: "8080:80"
+        env: 
+          WS_ENDPOINT: "emcmarslima.cloudapp.net:80/ws"
+      tags: start
+
+    - name: join dashboard
+      command: ./join.sh
+      tags: start
+
+    - name: stop containers
+      shell: docker stop $(docker ps -q)
+      tags: stop
+
